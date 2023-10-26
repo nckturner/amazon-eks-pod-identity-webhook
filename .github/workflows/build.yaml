@@ -14,7 +14,7 @@ jobs:
       with:
         buildx-version: latest
         qemu-version: latest
-    - name: Build container and push to Dockerhub registry
+    - name: Build container
       run: |
         BRANCH=$(echo $GITHUB_REF | cut -d'/' -f3)
         SHORT_SHA=$(echo $GITHUB_SHA | cut -c -7)
@@ -24,18 +24,10 @@ jobs:
         else
           TAG=$BRANCH
         fi
-        docker login -u ${{ secrets.DOCKERHUB_USER }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
         docker buildx build \
               -t $REPO:$TAG \
               --platform=linux/amd64,linux/arm64 \
               --progress plain \
-              --push .
-        if [ "$BRANCH" = "master" ]; then
-          docker buildx build \
-                -t $REPO:latest \
-                --platform=linux/amd64,linux/arm64 \
-                --progress plain \
-                --push .
-        fi
+              .
 
